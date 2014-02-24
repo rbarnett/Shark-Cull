@@ -9,12 +9,12 @@ class Skeleton extends Walker
 
   create_sprite:=>
     super
-    @sprite = @game.add.sprite(0, 0, 'skeleton')
+    @sprite = @game.add.sprite(0, 0, 'sharksprite')
     @quiet_time = 2
 
   set_animations: =>
-    @anim_fps_x = 12
-    @anim_fps_y = 6
+    @anim_fps_x = 5
+    @anim_fps_y = 5
     @min_anim_velocity = 25
     super
 
