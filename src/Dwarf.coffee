@@ -10,10 +10,14 @@ class Dwarf extends Walker
     @chat_colour = ['#FF0000', '#FFFF88', '#8888FF', '#88FF88'][@num-1]
     @shadow_colour = ['#000000', '#000000', '#000000', '#000000'][@num-1]
 
+    @sprite.body.friction = 2500
+
   create_sprite:=>
     super
-    gfx = "dwarf#{@player_number}"
-    @sprite = @game.add.sprite(0, 0, gfx)
+    # gfx = "dwarf#{@player_number}"
+    @sprite = @game.add.sprite(0, 0, 'boat')
+
+
     @arrows = [
       @game.add.sprite(0, 0, 'arrow'),
       @game.add.sprite(0, 0, 'arrow'),
@@ -37,6 +41,7 @@ class Dwarf extends Walker
     @arrows[dir].alpha = 1
 
   on_update:=>
+    #console.log(@sprite.x, @sprite.y)
     @arrows[0].x = @sprite.x + 8
     @arrows[0].y = @sprite.y + 32
     @arrows[1].x = @sprite.x - 16

@@ -5,6 +5,7 @@ class Walker extends Actor
     @player_number = player_number
     @level = level
     super(game)
+    @game = game
     @anim_fps_x = 20
     @anim_fps_y = 10
     @min_anim_velocity = 29.0
@@ -19,10 +20,10 @@ class Walker extends Actor
 
   set_animations: =>
     @sprite.animations.frame = 1
-    @sprite.animations.add("down", [0, 1, 2, 1], @anim_fps_y, true)
-    @sprite.animations.add("left", [4, 5, 6, 5], @anim_fps_x, true)
-    @sprite.animations.add("right", [8, 9, 10, 9], @anim_fps_x, true)
-    @sprite.animations.add("up", [12, 13, 14, 13], @anim_fps_y, true)
+    @sprite.animations.add("down", [0, 1, 2], @anim_fps_y, true)
+    @sprite.animations.add("left", [4, 5, 6], @anim_fps_x, true)
+    @sprite.animations.add("right", [8, 9, 10], @anim_fps_x, true)
+    @sprite.animations.add("up", [12, 13, 14], @anim_fps_y, true)
 
     idleChoice = Math.floor(Math.random() * 4)
     idleFps = 0.05 + (Math.random() * 0.2)

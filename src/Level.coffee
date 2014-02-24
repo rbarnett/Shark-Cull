@@ -17,6 +17,7 @@ class Level extends Scene
     @current = null
     @game.stage.backgroundColor = '#000'
     @levels = [
+      'beach',
       'intro',
       'level03',
       'level_skeletons',
@@ -82,16 +83,18 @@ class Level extends Scene
     @walkers = []
     @boulders = []
     @controllers = []
+    @sheep = []
+    @skeletons = []
     @players = [
       new Dwarf(@game, this, 1),
-      new Dwarf(@game, this, 2),
-      new Dwarf(@game, this, 3),
-      new Dwarf(@game, this, 4)
+      #new Dwarf(@game, this, 2),
+      #new Dwarf(@game, this, 3),
+      #new Dwarf(@game, this, 4)
     ]
     for player, i in @players
       player.add_to_group(@entities)
       @walkers.push(player)
-      controller = new Controller(player, @game)
+      controller = new Controller(@game, player)
       @pad.on(i, Pad.UP, controller.up)
       @pad.on(i, Pad.DOWN, controller.down)
       @pad.on(i, Pad.LEFT, controller.left)
@@ -142,6 +145,21 @@ class Level extends Scene
           o.add_to_group(layer)
           @walkers.push(o) if (o instanceof Walker)
           @boulders.push(o) if (o instanceof Boulder)
+          @sheep.push(o) if (o instanceof Sheep)
+          @skeletons.push(o) if (o instanceof Skeleton)
+
+    random_sheep = 30
+    while random_sheep > 0
+      s = new Sheep(@game, this)
+      s.sprite.x = 20 + (Math.random() * (@game.width - 40))
+      s.sprite.y = 20 + (Math.random() * (@game.height - 40))
+
+      @objects.push(s)
+      s.add_to_group(@entities)
+      @walkers.push(s)
+      @sheep.push(s)
+
+      random_sheep -= 1
 
     for trigger in @triggers
       @signals[trigger.properties.event].addOnce(trigger.handle)
@@ -175,37 +193,73 @@ class Level extends Scene
     # players bonking into each other
     alive_walkers = (walker for walker in @walkers when !walker.ignore)
     walker.collide(alive_walkers, @walkers_collided) for walker in alive_walkers
-    walker.collide(@walls) for walker in alive_walkers
+   
+    non_sheep_walkers = (walker for walker in alive_walkers when !(walker instanceof Sheep))
+    walker.collide(@walls) for walker in non_sheep_walkers
 
     controller.update() for controller in @controllers
     @entities.sort('y', Phaser.Group.SORT_ASCENDING)
 
   walkers_collided:(p1, p2) =>
-    return if p1.exited || p2.exited
+    return
+    # return if p1.exited || p2.exited
 
-    unless @sheeped
-      if (p1 instanceof Dwarf) and (p2 instanceof Sheep)
-        if (p1.sprite.body.touching.right) and (p2.sprite.body.velocity.x > 70.0)
-          if (p2.sprite.body.velocity.y > -5.0) and (p2.sprite.body.velocity.y < 5)
-            p1.say("So soft...")
-            @sheeped = true
+    # unless @sheeped
+    #   if (p1 instanceof Dwarf) and (p2 instanceof Sheep)
+    #     if (p1.sprite.body.touching.right) and (p2.sprite.body.velocity.x > 70.0)
+    #       if (p2.sprite.body.velocity.y > -5.0) and (p2.sprite.body.velocity.y < 5)
+    #         p1.say("So soft...")
+    #         @sheeped = true
 
-    if p1.sprite.body.speed+p2.sprite.body.speed >= 300
-      @pain.play('', 0, 1)
+    # if p1.sprite.body.speed+p2.sprite.body.speed >= 300
+    #   @pain.play('', 0, 1)
 
-      if p1.is_swapable() and p2.is_swapable() #and @current>0
-        p1.cool_down_swap(10.0)
-        p2.cool_down_swap(10.0)
-        @pad.swap_controls(p1.player_number - 1, p2.player_number - 1)
-        unless @bumped
-          @bumped = true
-          @pad.disable()
-          p1.say "What the...", =>
-            p2.say "I feel dizzy", =>
-              trigger = new Trigger(@game, this, {})
-              trigger.show_hint("(colliding hard swaps controls)")
-              trigger.signal.add =>
-                @pad.enable()
+    #   if p1.is_swapable() and p2.is_swapable() #and @current>0
+    #     p1.cool_down_swap(10.0)
+    #     p2.cool_down_swap(10.0)
+    #     @pad.swap_controls(p1.player_number - 1, p2.player_number - 1)
+    #     unless @bumped
+    #       @bumped = true
+    #       @pad.disable()
+    #       p1.say "What the...", =>
+    #         p2.say "I feel dizzy", =>
+    #           trigger = new Trigger(@game, this, {})
+    #           trigger.show_hint("(colliding hard swaps controls)")
+    #           trigger.signal.add =>
+    #             @pad.enable()
+
+
+  on_dry_land:(posx, posy) =>
+    if posy > 420 
+      return true
+
+    if posx < 50 and posy > 340
+      return true
+
+    if posx < 113 and posy > 365
+      return true
+
+    if posx < 208 and posy > 398
+      return true
+
+    if posx > 656 and posy > 398
+      return true
+
+    if posx > 753 and posy > 365
+      return true
+
+    if posx > 818 and posy > 340
+      return true
+
+    # 50, 340
+    # 113,  374
+    # 208, 403
+    # 420?
+    # 656, 403
+    # 753,  374
+    # 818, 340
+
+    return false
 
 root = exports ? window
 root.Level = Level
