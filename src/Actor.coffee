@@ -20,7 +20,7 @@ class Actor extends Entity
 
 
   set_physics: =>
-    @sprite.body.friction = 2500
+    @sprite.body.friction = 1
     @sprite.body.maxVelocity.x = 150
     @sprite.body.maxVelocity.y = 150
     @sprite.body.collideWorldBounds = true
