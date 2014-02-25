@@ -74,10 +74,12 @@ class Skeleton extends Walker
     # Walks to nearest sheep
     nearest = null
     nearest_dist = 9999
-    for s in @level.sheep
+    for s in @level.sheep when s.alive and !s.walking
       dist =  Math.abs(s.sprite.x - @sprite.x) +
               Math.abs(s.sprite.y - @sprite.y)
-      if dist < nearest_dist and dist > 50.0 and !s.on_dry_land()
+      if dist < 30.0 
+        s.be_eaten()
+      else if dist < nearest_dist and dist > 50.0
         nearest_dist = dist
         nearest = s
 

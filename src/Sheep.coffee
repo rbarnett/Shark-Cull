@@ -18,6 +18,7 @@ directions = (wasTouching, touching)->
 
 class Sheep extends Walker
   constructor:(game, level)->
+    @alive = true
     super
     @walkTime = 0.0
     @randDir = 4
@@ -33,8 +34,34 @@ class Sheep extends Walker
 
   set_animations: =>
     @min_anim_velocity = 10
-    
-    if @walking
+    @sprite.body.friction = 1
+
+    if !@alive
+      if @walking  #actually this just means "on land", they won't be walking as they are dead
+        @anim_fps_x = 1
+        @anim_fps_y = 1
+
+        @sprite.animations.add("down", [35], @anim_fps_y, true)
+        @sprite.animations.add("left", [35], @anim_fps_x, true)
+        @sprite.animations.add("right", [35], @anim_fps_x, true)
+        @sprite.animations.add("up", [35], @anim_fps_y, true)
+
+        @sprite.animations.add("idle", [35], @anim_fps_y, true)
+
+        @sprite.body.friction = 4   #prevent floaty graves when pushed onto land
+      else
+        @anim_fps_x = 3
+        @anim_fps_y = 3
+        @sprite.animations.frame = 1
+
+        @sprite.animations.add("down", [32, 33, 34, 33], @anim_fps_y, true)
+        @sprite.animations.add("left", [32, 33, 34, 33], @anim_fps_x, true)
+        @sprite.animations.add("right", [32, 33, 34, 33], @anim_fps_x, true)
+        @sprite.animations.add("up", [32, 33, 34, 33], @anim_fps_y, true)
+
+        @sprite.animations.add("idle", [32, 33, 34, 33], @anim_fps_y, true)
+
+    else if @walking
       @anim_fps_x = 5
       @anim_fps_y = 8
       @sprite.animations.frame = 1
@@ -66,6 +93,10 @@ class Sheep extends Walker
     @sprite.body.offset.y = 16
     @sprite.body.maxVelocity.x = 30
     @sprite.body.maxVelocity.y = 30
+
+  be_eaten: =>
+    @alive = false
+    @set_animations()
 
   on_dry_land: =>
     return @level.on_dry_land(@sprite.x, @sprite.y)
@@ -122,9 +153,11 @@ class Sheep extends Walker
     if (@walking != @on_dry_land())
       @walk_or_swim()
 
-
-    if (!@flee())
-      @wander()
+    if @alive
+      if (!@flee())
+        @wander()
+    else
+      @randDir = null
 
     if (@randDir == Phaser.RIGHT)
       @accelerate(20, 0)
