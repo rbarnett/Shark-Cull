@@ -17,7 +17,8 @@ class Boulder extends Actor
 
   on_update:()=>
     @collide(@level.walkers)
-    @collide(@level.walls)
+    @collide(@level.boulders)
+    #@collide(@level.walls)
     @game.debug.renderSpriteBody(@sprite);
 
 root = exports ? window
