@@ -1,3 +1,5 @@
+require 'middleman-gh-pages'
+
 task :default => [:deploy]
 task :deploy do
   `bundle exec middleman build`
