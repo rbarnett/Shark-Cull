@@ -95,14 +95,14 @@ class Pad
     if @state[2][Pad.RIGHT] && @kb.isDown(Phaser.Keyboard.COLON)
       @state[2][Pad.RIGHT](2) if @enabled[2]
     # BUTTONS
-    if @state[3][Pad.UP] && @kb.isDown(Phaser.Keyboard.UP)
-      @state[3][Pad.UP](3) if @enabled[3]
-    if @state[3][Pad.DOWN] && @kb.isDown(Phaser.Keyboard.DOWN)
-      @state[3][Pad.DOWN](3) if @enabled[3]
-    if @state[3][Pad.LEFT] && @kb.isDown(Phaser.Keyboard.LEFT)
-      @state[3][Pad.LEFT](3) if @enabled[3]
-    if @state[3][Pad.RIGHT] && @kb.isDown(Phaser.Keyboard.RIGHT)
-      @state[3][Pad.RIGHT](3) if @enabled[3]
+    if @state[0][Pad.UP] && @kb.isDown(Phaser.Keyboard.UP)
+      @state[0][Pad.UP](0) if @enabled[0]
+    if @state[0][Pad.DOWN] && @kb.isDown(Phaser.Keyboard.DOWN)
+      @state[0][Pad.DOWN](0) if @enabled[0]
+    if @state[0][Pad.LEFT] && @kb.isDown(Phaser.Keyboard.LEFT)
+      @state[0][Pad.LEFT](0) if @enabled[0]
+    if @state[0][Pad.RIGHT] && @kb.isDown(Phaser.Keyboard.RIGHT)
+      @state[0][Pad.RIGHT](0) if @enabled[0]
 
   poll:(pad)=>
     # LEFT STICK

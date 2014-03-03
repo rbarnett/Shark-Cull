@@ -33,6 +33,7 @@ class Trigger
         @level.pad.disable()
       when '0' 
         @level.pad.enable_player(0) 
+        @level.pad.enable_player(3)
       when '1' 
         @level.pad.enable_player(1) 
       when '2' 
