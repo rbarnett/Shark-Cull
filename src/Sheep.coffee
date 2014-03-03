@@ -87,10 +87,10 @@ class Sheep extends Walker
 
   set_physics: =>
     super
-    @sprite.body.height = 16
-    @sprite.body.width = 24
-    @sprite.body.offset.x = 4
-    @sprite.body.offset.y = 16
+    @sprite.body.height = 28
+    @sprite.body.width = 28
+    @sprite.body.offset.x = 2
+    @sprite.body.offset.y = 2
     @sprite.body.maxVelocity.x = 30
     @sprite.body.maxVelocity.y = 30
 

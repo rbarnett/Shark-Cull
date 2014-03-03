@@ -26,10 +26,10 @@ class Actor extends Entity
     @sprite.body.collideWorldBounds = true
     @sprite.body.bounce.x = 0.1
     @sprite.body.bounce.y = 0.1
-    @sprite.body.height = 16
-    @sprite.body.width = 20
-    @sprite.body.offset.x = 6
-    @sprite.body.offset.y = 18
+    @sprite.body.height = 34
+    @sprite.body.width = 34
+    @sprite.body.offset.x = 0
+    @sprite.body.offset.y = 0
 
     ##### Start of super dodgy hacks to swap out the position of the sprite for a rounded int version just in time for rendering but without affecting phyics
     @sprite.body.oldPostUpdate = @sprite.body.postUpdate

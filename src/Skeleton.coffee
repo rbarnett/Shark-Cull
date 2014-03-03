@@ -20,10 +20,10 @@ class Skeleton extends Walker
 
   set_physics: =>
     super
-    @sprite.body.height = 16
-    @sprite.body.width = 24
-    @sprite.body.offset.x = 4
-    @sprite.body.offset.y = 16
+    @sprite.body.height = 28
+    @sprite.body.width = 28
+    @sprite.body.offset.x = 0
+    @sprite.body.offset.y = 0
     @sprite.body.maxVelocity.x = 30
     @sprite.body.maxVelocity.y = 30
 
@@ -77,7 +77,7 @@ class Skeleton extends Walker
     for s in @level.sheep when s.alive and !s.walking
       dist =  Math.abs(s.sprite.x - @sprite.x) +
               Math.abs(s.sprite.y - @sprite.y)
-      if dist < 30.0 
+      if dist < 35.0 
         s.be_eaten()
       else if dist < nearest_dist and dist > 50.0
         nearest_dist = dist

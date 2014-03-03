@@ -6,9 +6,9 @@ class Boulder extends Actor
   set_physics: =>
     super
     @sprite.body.width = 38
-    @sprite.body.height = 25
+    @sprite.body.height = 38
     @sprite.body.offset.x = 5
-    @sprite.body.offset.y = 20
+    @sprite.body.offset.y = 6
     @sprite.body.maxVelocity.x = 30
     @sprite.body.maxVelocity.y = 30
 
