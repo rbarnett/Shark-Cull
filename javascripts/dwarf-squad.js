@@ -436,100 +436,6 @@
 
 }).call(this);
 (function() {
-  var Carryable, root,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  Carryable = (function(_super) {
-    __extends(Carryable, _super);
-
-    function Carryable(game, level, properties) {
-      this.stepped_on = __bind(this.stepped_on, this);
-      this.update = __bind(this.update, this);
-      this.move_to = __bind(this.move_to, this);
-      Carryable.__super__.constructor.call(this, game);
-      this.level = level;
-      this.properties = properties;
-      this.carried_by = false;
-    }
-
-    Carryable.set_physics = function() {
-      return Carryable.__super__.constructor.set_physics.apply(this, arguments);
-    };
-
-    Carryable.prototype.move_to = function(x, y, facing) {
-      if (facing === Pad.RIGHT) {
-        x += this.sprite.width;
-      } else if (facing === Pad.LEFT) {
-        x -= this.sprite.width;
-      } else if (facing === Pad.DOWN) {
-        y += this.sprite.height / 2;
-      } else if (facing === Pad.UP) {
-        y -= this.sprite.height / 2;
-      }
-      this.sprite.x = x;
-      return this.sprite.y = y;
-    };
-
-    Carryable.prototype.update = function() {
-      if (this.carried_by) {
-        return this.move_to(this.carried_by.sprite.x, this.carried_by.sprite.y, this.carried_by.facing);
-      } else if (this.level.pad.enabled) {
-        return this.collide(this.level.players, this.stepped_on);
-      }
-    };
-
-    Carryable.prototype.stepped_on = function(us, player) {
-      if (player.exited) {
-        return;
-      }
-      if (player.maybe_pickup(this)) {
-        this.carried_by = player;
-        if (this.on_pickup) {
-          return on_pickup(player);
-        }
-      }
-    };
-
-    return Carryable;
-
-  }).call(this, Actor);
-
-  root = typeof exports !== "undefined" && exports !== null ? exports : window;
-
-  root.Carryable = Carryable;
-
-}).call(this);
-(function() {
-  var Key, root, _ref,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  Key = (function(_super) {
-    __extends(Key, _super);
-
-    function Key() {
-      this.create_sprite = __bind(this.create_sprite, this);
-      _ref = Key.__super__.constructor.apply(this, arguments);
-      return _ref;
-    }
-
-    Key.prototype.create_sprite = function() {
-      return this.sprite = this.game.add.sprite(0, 0, 'key');
-    };
-
-    return Key;
-
-  })(Carryable);
-
-  root = typeof exports !== "undefined" && exports !== null ? exports : window;
-
-  root.Key = Key;
-
-}).call(this);
-(function() {
   var Dwarf, root,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
@@ -539,17 +445,12 @@
     __extends(Dwarf, _super);
 
     function Dwarf(game, level, i) {
-      this.maybe_pickup = __bind(this.maybe_pickup, this);
-      this.on_remove_from_group = __bind(this.on_remove_from_group, this);
-      this.on_add_to_group = __bind(this.on_add_to_group, this);
       this.on_update = __bind(this.on_update, this);
-      this.show_arrow = __bind(this.show_arrow, this);
       this.notify = __bind(this.notify, this);
       this.say = __bind(this.say, this);
       this.create_sprite = __bind(this.create_sprite, this);
       Dwarf.__super__.constructor.call(this, game, level, i);
       this.num = i;
-      this.carrying = null;
       this.signal = new Phaser.Signal();
       this.chat_colour = ['#FF0000', '#FFFF88', '#8888FF', '#88FF88'][this.num - 1];
       this.shadow_colour = ['#000000', '#000000', '#000000', '#000000'][this.num - 1];
@@ -557,17 +458,8 @@
     }
 
     Dwarf.prototype.create_sprite = function() {
-      var arrow, _i, _len, _ref, _results;
       Dwarf.__super__.create_sprite.apply(this, arguments);
-      this.sprite = this.game.add.sprite(0, 0, 'boat');
-      this.arrows = [this.game.add.sprite(0, 0, 'arrow'), this.game.add.sprite(0, 0, 'arrow'), this.game.add.sprite(0, 0, 'arrow'), this.game.add.sprite(0, 0, 'arrow')];
-      _ref = this.arrows;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        arrow = _ref[_i];
-        _results.push(arrow.alpha = 0);
-      }
-      return _results;
+      return this.sprite = this.game.add.sprite(0, 0, 'boat');
     };
 
     Dwarf.prototype.say = function(message, callback) {
@@ -586,58 +478,7 @@
       return this.signal.dispatch();
     };
 
-    Dwarf.prototype.show_arrow = function(dir, own) {
-      this.arrows[dir].animations.frame = own * 4 + dir;
-      return this.arrows[dir].alpha = 1;
-    };
-
-    Dwarf.prototype.on_update = function() {
-      var arrow, _i, _len, _ref, _results;
-      this.arrows[0].x = this.sprite.x + 8;
-      this.arrows[0].y = this.sprite.y + 32;
-      this.arrows[1].x = this.sprite.x - 16;
-      this.arrows[1].y = this.sprite.y + 8;
-      this.arrows[2].x = this.sprite.x + 8;
-      this.arrows[2].y = this.sprite.y - 16;
-      this.arrows[3].x = this.sprite.x + 32;
-      this.arrows[3].y = this.sprite.y + 8;
-      _ref = this.arrows;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        arrow = _ref[_i];
-        _results.push(arrow.alpha *= 0.9);
-      }
-      return _results;
-    };
-
-    Dwarf.prototype.on_add_to_group = function(group) {
-      var arrow, _i, _len, _ref, _results;
-      _ref = this.arrows;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        arrow = _ref[_i];
-        _results.push(group.add(arrow));
-      }
-      return _results;
-    };
-
-    Dwarf.prototype.on_remove_from_group = function(group) {
-      var arrow, _i, _len, _ref;
-      _ref = this.arrows;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        arrow = _ref[_i];
-        group.remove(arrow);
-      }
-      if (this.carrying) {
-        return this.carrying.remove_from_group(group);
-      }
-    };
-
-    Dwarf.prototype.maybe_pickup = function(entity) {
-      if (this.carrying === null) {
-        return this.carrying = entity;
-      }
-    };
+    Dwarf.prototype.on_update = function() {};
 
     return Dwarf;
 
@@ -978,24 +819,24 @@
           this.state[2][Pad.RIGHT](2);
         }
       }
-      if (this.state[3][Pad.UP] && this.kb.isDown(Phaser.Keyboard.UP)) {
-        if (this.enabled[3]) {
-          this.state[3][Pad.UP](3);
+      if (this.state[0][Pad.UP] && this.kb.isDown(Phaser.Keyboard.UP)) {
+        if (this.enabled[0]) {
+          this.state[0][Pad.UP](0);
         }
       }
-      if (this.state[3][Pad.DOWN] && this.kb.isDown(Phaser.Keyboard.DOWN)) {
-        if (this.enabled[3]) {
-          this.state[3][Pad.DOWN](3);
+      if (this.state[0][Pad.DOWN] && this.kb.isDown(Phaser.Keyboard.DOWN)) {
+        if (this.enabled[0]) {
+          this.state[0][Pad.DOWN](0);
         }
       }
-      if (this.state[3][Pad.LEFT] && this.kb.isDown(Phaser.Keyboard.LEFT)) {
-        if (this.enabled[3]) {
-          this.state[3][Pad.LEFT](3);
+      if (this.state[0][Pad.LEFT] && this.kb.isDown(Phaser.Keyboard.LEFT)) {
+        if (this.enabled[0]) {
+          this.state[0][Pad.LEFT](0);
         }
       }
-      if (this.state[3][Pad.RIGHT] && this.kb.isDown(Phaser.Keyboard.RIGHT)) {
-        if (this.enabled[3]) {
-          return this.state[3][Pad.RIGHT](3);
+      if (this.state[0][Pad.RIGHT] && this.kb.isDown(Phaser.Keyboard.RIGHT)) {
+        if (this.enabled[0]) {
+          return this.state[0][Pad.RIGHT](0);
         }
       }
     };
@@ -1200,79 +1041,6 @@
 
 }).call(this);
 (function() {
-  var Exit, root,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  Exit = (function(_super) {
-    __extends(Exit, _super);
-
-    function Exit(game, level, properties) {
-      this.walker_entered = __bind(this.walker_entered, this);
-      this.on_update = __bind(this.on_update, this);
-      this.set_physics = __bind(this.set_physics, this);
-      this.create_sprite = __bind(this.create_sprite, this);
-      var _base;
-      Exit.__super__.constructor.call(this, game);
-      this.level = level;
-      this.properties = properties;
-      this.count = 0;
-      this.collect_sound = this.game.add.sound("collect");
-      (_base = this.properties).accepts || (_base.accepts = "Dwarf");
-    }
-
-    Exit.prototype.create_sprite = function() {
-      this.sprite = this.game.add.sprite(0, 0, 'objects');
-      return this.sprite.animations.frame = 8;
-    };
-
-    Exit.prototype.set_physics = function() {
-      Exit.__super__.set_physics.apply(this, arguments);
-      this.sprite.body.immovable = true;
-      this.sprite.body.height = 32;
-      this.sprite.body.width = 32;
-      this.sprite.body.offset.x = 0;
-      return this.sprite.body.offset.y = 0;
-    };
-
-    Exit.prototype.on_update = function() {
-      if (this.level.pad.enabled) {
-        return this.collide(this.level.walkers, this.walker_entered);
-      }
-    };
-
-    Exit.prototype.walker_entered = function(door, walker) {
-      if (walker.exited) {
-        return;
-      }
-      if (this.properties['accepts'] === walker.constructor.name) {
-        if (this.properties.relocates !== void 0 && this.properties.relocates) {
-          walker.sprite.x = this.sprite.x;
-          walker.sprite.y = this.sprite.y - 50;
-        } else {
-          walker.remove_from_group(this.level.entities);
-          walker.ignore = true;
-        }
-        walker.exited = true;
-        this.count += 1;
-        this.collect_sound.play('', 0, 1);
-        if (this.count === +this.properties['count']) {
-          return this.level.signals[this.properties['id']].dispatch();
-        }
-      }
-    };
-
-    return Exit;
-
-  })(Actor);
-
-  root = typeof exports !== "undefined" && exports !== null ? exports : window;
-
-  root.Exit = Exit;
-
-}).call(this);
-(function() {
   var Trigger, root,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -1330,7 +1098,8 @@
         case 'disable':
           return this.level.pad.disable();
         case '0':
-          return this.level.pad.enable_player(0);
+          this.level.pad.enable_player(0);
+          return this.level.pad.enable_player(3);
         case '1':
           return this.level.pad.enable_player(1);
         case '2':
@@ -1594,195 +1363,6 @@
 
 }).call(this);
 (function() {
-  var Door, root,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  Door = (function(_super) {
-    __extends(Door, _super);
-
-    function Door(game, level, properties) {
-      this.player_touching = __bind(this.player_touching, this);
-      this.on_update = __bind(this.on_update, this);
-      this.close = __bind(this.close, this);
-      this.open = __bind(this.open, this);
-      this.set_physics = __bind(this.set_physics, this);
-      this.targeted = __bind(this.targeted, this);
-      this.create_sprite = __bind(this.create_sprite, this);
-      this.set_animations = __bind(this.set_animations, this);
-      Door.__super__.constructor.call(this, game);
-      this.level = level;
-      this.properties = properties;
-      this.count = 0;
-      if (properties.locked === void 0) {
-        properties.locked = true;
-      }
-      this.is_open = properties.locked !== 'y';
-      this.set_animations();
-      this.open_sfx = this.game.add.sound("button1");
-      this.close_sfx = this.game.add.sound("button2");
-    }
-
-    Door.prototype.set_animations = function() {
-      this.sprite.animations.add("closed", [1], 1, true);
-      this.sprite.animations.add("open", [2], 1, true);
-      return this.sprite.animations.play("open");
-    };
-
-    Door.prototype.create_sprite = function() {
-      return this.sprite = this.game.add.sprite(0, 0, 'objects');
-    };
-
-    Door.prototype.targeted = function(msg) {
-      if (msg) {
-        return this.open();
-      } else {
-        return this.close();
-      }
-    };
-
-    Door.prototype.set_physics = function() {
-      Door.__super__.set_physics.apply(this, arguments);
-      this.sprite.body.immovable = true;
-      this.sprite.body.height = 32;
-      this.sprite.body.width = 32;
-      this.sprite.body.offset.x = 0;
-      return this.sprite.body.offset.y = 0;
-    };
-
-    Door.prototype.open = function() {
-      if (!this.is_open) {
-        this.is_open = true;
-        return this.open_sfx.play();
-      }
-    };
-
-    Door.prototype.close = function() {
-      if (this.is_open) {
-        this.is_open = false;
-        return this.close_sfx.play();
-      }
-    };
-
-    Door.prototype.on_update = function() {
-      if (!this.is_open) {
-        this.sprite.animations.play("closed");
-        if (this.level.pad.enabled) {
-          return this.collide(this.level.walkers, this.player_touching);
-        }
-      } else {
-        return this.sprite.animations.play("open");
-      }
-    };
-
-    Door.prototype.player_touching = function(door, player) {
-      var key;
-      if (!(player instanceof Dwarf)) {
-        return;
-      }
-      if (player.exited) {
-        return;
-      }
-      if (!(player.carrying && (player.carrying instanceof Key))) {
-        return;
-      }
-      key = player.carrying;
-      if (this.properties.id === void 0 || this.properties.id === key.properties.target) {
-        return this.open();
-      }
-    };
-
-    return Door;
-
-  })(Actor);
-
-  root = typeof exports !== "undefined" && exports !== null ? exports : window;
-
-  root.Door = Door;
-
-}).call(this);
-(function() {
-  var Switcher, root,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  Switcher = (function(_super) {
-    __extends(Switcher, _super);
-
-    function Switcher(game, level, properties) {
-      this.player_touching = __bind(this.player_touching, this);
-      this.on_update = __bind(this.on_update, this);
-      this.set_physics = __bind(this.set_physics, this);
-      this.create_sprite = __bind(this.create_sprite, this);
-      this.set_animations = __bind(this.set_animations, this);
-      var _base;
-      Switcher.__super__.constructor.call(this, game);
-      this.level = level;
-      this.properties = properties;
-      (_base = this.properties).action || (_base.action = 'momentary');
-      this.set_animations();
-      this.on = false;
-    }
-
-    Switcher.prototype.set_animations = function() {
-      this.sprite.animations.add("up", [10], 1, true);
-      this.sprite.animations.add("down", [11], 1, true);
-      return this.sprite.animations.play("up");
-    };
-
-    Switcher.prototype.create_sprite = function() {
-      return this.sprite = this.game.add.sprite(0, 0, 'objects');
-    };
-
-    Switcher.prototype.set_physics = function() {
-      Switcher.__super__.set_physics.apply(this, arguments);
-      this.sprite.body.immovable = true;
-      this.sprite.body.width = 22;
-      this.sprite.body.height = 22;
-      this.sprite.body.offset.x = 5;
-      return this.sprite.body.offset.y = 5;
-    };
-
-    Switcher.prototype.on_update = function() {
-      var was_on;
-      was_on = this.on;
-      if (this.properties.action === 'momentary') {
-        this.on = false;
-        this.collide(this.level.walkers, null, this.player_touching);
-        this.collide(this.level.boulders, null, this.player_touching);
-      } else {
-        alert("" + this.properties.action + " action switch not supported");
-      }
-      if (this.on) {
-        this.sprite.animations.play("down");
-      } else {
-        this.sprite.animations.play("up");
-      }
-      if (this.was_on !== this.on) {
-        return this.activate_target(this.on);
-      }
-    };
-
-    Switcher.prototype.player_touching = function(sw, player) {
-      if (player.exited) {
-        return;
-      }
-      this.on = true;
-      return false;
-    };
-
-    return Switcher;
-
-  })(Actor);
-
-  root = typeof exports !== "undefined" && exports !== null ? exports : window;
-
-  root.Switcher = Switcher;
-
-}).call(this);
-(function() {
   var Boulder, root,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
@@ -1829,84 +1409,6 @@
 
 }).call(this);
 (function() {
-  var Treasure, root,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  Treasure = (function(_super) {
-    __extends(Treasure, _super);
-
-    function Treasure(game, level, properties) {
-      this.player_touching = __bind(this.player_touching, this);
-      this.on_update = __bind(this.on_update, this);
-      this.set_physics = __bind(this.set_physics, this);
-      this.create_sprite = __bind(this.create_sprite, this);
-      Treasure.__super__.constructor.call(this, game);
-      this.level = level;
-      this.properties = properties;
-      this.sound = this.game.add.sound("coin" + Phaser.Math.getRandom([1, 2, 3, 4]));
-    }
-
-    Treasure.prototype.create_sprite = function() {
-      Treasure.__super__.create_sprite.apply(this, arguments);
-      this.sprite = this.game.add.sprite(0, 0, 'world');
-      this.sprite.animations.add("idle", [Phaser.Math.getRandom([32, 33, 34])], 1, true);
-      return this.sprite.animations.play("idle");
-    };
-
-    Treasure.prototype.set_physics = function() {
-      Treasure.__super__.set_physics.apply(this, arguments);
-      this.sprite.body.immovable = true;
-      this.sprite.body.width = 22;
-      this.sprite.body.height = 22;
-      this.sprite.body.offset.x = 5;
-      return this.sprite.body.offset.y = 5;
-    };
-
-    Treasure.prototype.on_update = function() {
-      return this.collide(this.level.players, null, this.player_touching);
-    };
-
-    Treasure.prototype.player_touching = function(sw, player) {
-      var message, object, treasures;
-      if (player.exited) {
-        return;
-      }
-      this.sound.play();
-      this.destroy();
-      if (Phaser.Math.chanceRoll(15)) {
-        message = Phaser.Math.getRandom(["Aahll be Teaking Thaaat!!", "Ooohh Shiny!", "Aull Mah Dreams Ah Coming True!", "Eets Jes Like Christmas!"]);
-        player.set_caption(message, 3.0, 20);
-      }
-      treasures = (function() {
-        var _i, _len, _ref, _results;
-        _ref = this.level.objects;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          object = _ref[_i];
-          if ((object instanceof Treasure) && !object.dead) {
-            _results.push(object);
-          }
-        }
-        return _results;
-      }).call(this);
-      if (treasures.length === 0) {
-        this.level.signals['finish'].dispatch();
-      }
-      return false;
-    };
-
-    return Treasure;
-
-  })(Actor);
-
-  root = typeof exports !== "undefined" && exports !== null ? exports : window;
-
-  root.Treasure = Treasure;
-
-}).call(this);
-(function() {
   var Level, root, _ref,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
@@ -1933,7 +1435,7 @@
       this.started = false;
       this.current = null;
       this.game.stage.backgroundColor = '#000';
-      this.levels = ['beach', 'intro', 'level03', 'level_skeletons', 'treasure_room'];
+      this.levels = ['beach'];
       this.pad = new Pad(this.game);
       return this.next();
     };
@@ -2028,18 +1530,6 @@
             layer = this.entities;
             o = (function() {
               switch (spawn.properties.type) {
-                case "exit":
-                  return new Exit(this.game, this, spawn.properties);
-                case "treasure":
-                  return new Treasure(this.game, this, spawn.properties);
-                case "key":
-                  return new Key(this.game, this, spawn.properties);
-                case "door":
-                  layer = this.floor_group;
-                  return new Door(this.game, this, spawn.properties);
-                case "switch":
-                  layer = this.floor_group;
-                  return new Switcher(this.game, this, spawn.properties);
                 case "sheep":
                   return new Sheep(this.game, this);
                 case "boulder":
@@ -2328,20 +1818,10 @@
       this.game.load.image('labs', 'assets/labs.png');
       this.game.load.spritesheet('boat', 'assets/boat.png', 32, 32);
       this.game.load.spritesheet('sharksprite', 'assets/shark.png', 32, 32);
-      this.game.load.spritesheet('sheep', 'assets/sheep.png', 32, 32);
       this.game.load.spritesheet('manswim', 'assets/manswim.png', 32, 32);
-      this.game.load.spritesheet('arrow', 'assets/arrows.png', 16, 16);
-      this.game.load.spritesheet('objects', 'assets/objects.png', 32, 32);
-      this.game.load.image('key', 'assets/key.png');
       this.game.load.spritesheet('world', 'assets/world.png', 32, 32);
       this.game.load.image('boulder', 'assets/boulder.png');
       this.game.load.tilemap('beach', 'maps/beach.json', null, Phaser.Tilemap.TILED_JSON);
-      this.game.load.tilemap('level01', 'maps/level01.json', null, Phaser.Tilemap.TILED_JSON);
-      this.game.load.tilemap('level02', 'maps/level02.json', null, Phaser.Tilemap.TILED_JSON);
-      this.game.load.tilemap('level03', 'maps/level03.json', null, Phaser.Tilemap.TILED_JSON);
-      this.game.load.tilemap('treasure_room', 'maps/treasure_room.json', null, Phaser.Tilemap.TILED_JSON);
-      this.game.load.tilemap('level_skeletons', 'maps/level_skeletons.json', null, Phaser.Tilemap.TILED_JSON);
-      this.game.load.tilemap('intro', 'maps/intro.json', null, Phaser.Tilemap.TILED_JSON);
       this.game.load.audio('themetune', 'songs/music.mp3');
       this.game.load.audio('pain', 'sounds/pain.wav');
       this.game.load.audio('crazy', 'sounds/CrazyTime.mp3');
