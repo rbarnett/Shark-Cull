@@ -5,6 +5,7 @@
   SceneManager = (function() {
     function SceneManager() {
       this.get_current = __bind(this.get_current, this);
+      this.render = __bind(this.render, this);
       this.update = __bind(this.update, this);
       this.init = __bind(this.init, this);
       this.add = __bind(this.add, this);
@@ -31,6 +32,12 @@
     SceneManager.prototype.update = function() {
       if (this.current !== null) {
         return this.scenes[this.current].update();
+      }
+    };
+
+    SceneManager.prototype.render = function() {
+      if (this.current !== null) {
+        return this.scenes[this.current].render();
       }
     };
 
@@ -151,10 +158,10 @@
       this.sprite.body.collideWorldBounds = true;
       this.sprite.body.bounce.x = 0.1;
       this.sprite.body.bounce.y = 0.1;
-      this.sprite.body.height = 16;
-      this.sprite.body.width = 20;
-      this.sprite.body.offset.x = 6;
-      this.sprite.body.offset.y = 18;
+      this.sprite.body.height = 34;
+      this.sprite.body.width = 34;
+      this.sprite.body.offset.x = 0;
+      this.sprite.body.offset.y = 0;
       this.sprite.body.oldPostUpdate = this.sprite.body.postUpdate;
       this.sprite.body.postUpdate = function() {
         this.oldPostUpdate();
@@ -740,10 +747,10 @@
 
     Sheep.prototype.set_physics = function() {
       Sheep.__super__.set_physics.apply(this, arguments);
-      this.sprite.body.height = 16;
-      this.sprite.body.width = 24;
-      this.sprite.body.offset.x = 4;
-      this.sprite.body.offset.y = 16;
+      this.sprite.body.height = 28;
+      this.sprite.body.width = 28;
+      this.sprite.body.offset.x = 2;
+      this.sprite.body.offset.y = 2;
       this.sprite.body.maxVelocity.x = 30;
       return this.sprite.body.maxVelocity.y = 30;
     };
@@ -1167,6 +1174,7 @@
 
   Scene = (function() {
     function Scene(game, director) {
+      this.render = __bind(this.render, this);
       this.update = __bind(this.update, this);
       this.fini = __bind(this.fini, this);
       this.init = __bind(this.init, this);
@@ -1179,6 +1187,8 @@
     Scene.prototype.fini = function() {};
 
     Scene.prototype.update = function() {};
+
+    Scene.prototype.render = function() {};
 
     return Scene;
 
@@ -1499,10 +1509,10 @@
 
     Skeleton.prototype.set_physics = function() {
       Skeleton.__super__.set_physics.apply(this, arguments);
-      this.sprite.body.height = 16;
-      this.sprite.body.width = 24;
-      this.sprite.body.offset.x = 4;
-      this.sprite.body.offset.y = 16;
+      this.sprite.body.height = 28;
+      this.sprite.body.width = 28;
+      this.sprite.body.offset.x = 0;
+      this.sprite.body.offset.y = 0;
       this.sprite.body.maxVelocity.x = 30;
       return this.sprite.body.maxVelocity.y = 30;
     };
@@ -1555,7 +1565,7 @@
           continue;
         }
         dist = Math.abs(s.sprite.x - this.sprite.x) + Math.abs(s.sprite.y - this.sprite.y);
-        if (dist < 30.0) {
+        if (dist < 35.0) {
           s.be_eaten();
         } else if (dist < nearest_dist && dist > 50.0) {
           nearest_dist = dist;
@@ -1792,9 +1802,9 @@
     Boulder.prototype.set_physics = function() {
       Boulder.__super__.set_physics.apply(this, arguments);
       this.sprite.body.width = 38;
-      this.sprite.body.height = 25;
+      this.sprite.body.height = 38;
       this.sprite.body.offset.x = 5;
-      this.sprite.body.offset.y = 20;
+      this.sprite.body.offset.y = 6;
       this.sprite.body.maxVelocity.x = 30;
       return this.sprite.body.maxVelocity.y = 30;
     };
@@ -1909,6 +1919,7 @@
       this.on_dry_land = __bind(this.on_dry_land, this);
       this.walkers_collided = __bind(this.walkers_collided, this);
       this.update = __bind(this.update, this);
+      this.render = __bind(this.render, this);
       this.fadeout = __bind(this.fadeout, this);
       this.endfade = __bind(this.endfade, this);
       this.fadein = __bind(this.fadein, this);
@@ -2103,6 +2114,8 @@
       return timer.start();
     };
 
+    Level.prototype.render = function() {};
+
     Level.prototype.update = function() {
       var alive_walkers, controller, non_sheep_walkers, object, player, walker, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _m, _ref1, _ref2, _ref3;
       if (!this.started) {
@@ -2288,6 +2301,7 @@
     __extends(Main, _super);
 
     function Main(fullscreen, scene) {
+      this.render = __bind(this.render, this);
       this.update = __bind(this.update, this);
       this.gofull = __bind(this.gofull, this);
       this.create = __bind(this.create, this);
@@ -2366,6 +2380,10 @@
 
     Main.prototype.update = function() {
       return this.scene_manager.update();
+    };
+
+    Main.prototype.render = function() {
+      return this.scene_manager.render();
     };
 
     return Main;
