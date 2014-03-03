@@ -15,6 +15,14 @@ class Dwarf extends Walker
     # gfx = "dwarf#{@player_number}"
     @sprite = @game.add.sprite(0, 0, 'boat')
 
+  set_animations: =>
+    @anim_fps_x = 8
+    @anim_fps_y = 8
+    @sprite.animations.frame = 1
+    @sprite.animations.add("down", [0, 1], @anim_fps_y, true)
+    @sprite.animations.add("left", [4, 5], @anim_fps_x, true)
+    @sprite.animations.add("right", [8, 9], @anim_fps_x, true)
+    @sprite.animations.add("up", [12, 13], @anim_fps_y, true)
 
   say:(message, callback=null)=>
     @chat_callback = callback

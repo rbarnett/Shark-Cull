@@ -6,6 +6,7 @@
 #= require Trigger
 #= require Skeleton
 #= require Boulder
+#= require Emperor
 
 class Level extends Scene
   init:=>
@@ -139,6 +140,12 @@ class Level extends Scene
 
       random_sheep -= 1
 
+    e = new Emperor(@game, this)
+    e.sprite.x = 0
+    e.sprite.y = 600 #410
+    @objects.push(e)
+    e.add_to_group(@entities)
+
     for trigger in @triggers
       @signals[trigger.properties.event].addOnce(trigger.handle)
 
@@ -211,6 +218,19 @@ class Level extends Scene
     #           trigger.signal.add =>
     #             @pad.enable()
 
+  kill_shark:(shark) =>
+    index = @skeletons.indexOf(shark)
+    if (index > -1) 
+      @skeletons.splice(index, 1)
+
+    index = @objects.indexOf(shark)
+    if (index > -1) 
+      @objects.splice(index, 1)
+
+    blood = new Phaser.Sprite(@game, shark.sprite.x, shark.sprite.y, 'blood')
+    #@game.add.sprite(shark.sprite.x, shark.sprite.y, 'blood')
+    @floor_group.add(blood)
+    shark.destroy()
 
   on_dry_land:(posx, posy) =>
     if posy > 420 
