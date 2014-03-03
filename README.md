@@ -6,6 +6,10 @@
 
 `bundle exec middleman`
 
+### Build
+
+`bundle exec rake build`
+
 ### Deploy
 
-`rake`
+`bundle exec rake publish`

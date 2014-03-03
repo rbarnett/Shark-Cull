@@ -3,13 +3,9 @@
 #= require Controller
 #= require Pad
 #= require Scene
-#= require Exit
 #= require Trigger
 #= require Skeleton
-#= require Switcher
-#= require Door
 #= require Boulder
-#= require Treasure
 
 class Level extends Scene
   init:=>
@@ -18,10 +14,6 @@ class Level extends Scene
     @game.stage.backgroundColor = '#000'
     @levels = [
       'beach',
-      'intro',
-      'level03',
-      'level_skeletons',
-      'treasure_room'
     ]
     @pad = new Pad(@game)
 
@@ -116,20 +108,6 @@ class Level extends Scene
           layer = @entities
           o =
             switch spawn.properties.type
-              when "exit"
-                new Exit(@game, this, spawn.properties)
-              when "treasure"
-                new Treasure(@game, this, spawn.properties)
-              when "key"
-                new Key(@game, this, spawn.properties)
-              when "door"
-                #always underneath
-                layer = @floor_group
-                new Door(@game, this, spawn.properties)
-              when "switch"
-                #always underneath
-                layer = @floor_group
-                new Switcher(@game, this, spawn.properties)
               when "sheep"
                 new Sheep(@game, this)
               when "boulder"
@@ -185,6 +163,7 @@ class Level extends Scene
     timer.start()
 
   render:=>
+    # to enabled debug draw, also change Phaser.AUTO to Phaser.CANVAS in dev.html.erb
     #@game.debug.renderSpriteBody(o.sprite) for o in @objects
     #@game.debug.renderSpriteBody(p.sprite) for p in @players
 

@@ -11,19 +11,15 @@ class Controller
 
   left:(pid)=>
     @targetx = -1
-    #@player.show_arrow(Pad.LEFT, pid)
 
   right:(pid)=>
     @targetx = 1
-    #@player.show_arrow(Pad.RIGHT, pid)
 
   up:(pid)=>
     @targety = -1
-    #@player.show_arrow(Pad.UP, pid)
 
   down:(pid)=>
     @targety = 1
-    #@player.show_arrow(Pad.DOWN, pid)
 
   update:=>
     if (@targetx == 0)
