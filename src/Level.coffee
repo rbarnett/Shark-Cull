@@ -184,6 +184,10 @@ class Level extends Scene
     timer.add(1000, @next)
     timer.start()
 
+  render:=>
+    #@game.debug.renderSpriteBody(o.sprite) for o in @objects
+    #@game.debug.renderSpriteBody(p.sprite) for p in @players
+
   update:=>
     return unless @started
     @pad.update()

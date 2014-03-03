@@ -18,6 +18,9 @@ class SceneManager
   update:=>
     @scenes[@current].update() unless @current == null
 
+  render:=>
+    @scenes[@current].render() unless @current == null
+
   get_current:()=>
     @scenes[@current]
 

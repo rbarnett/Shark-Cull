@@ -82,5 +82,8 @@ class Main extends Phaser.State
   update:=>
     @scene_manager.update()
 
+  render:=>
+    @scene_manager.render()
+
 root = exports ? window
 root.Main = Main

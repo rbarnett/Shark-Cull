@@ -9,5 +9,7 @@ class Scene
 
   update:=>
 
+  render:=>
+
 root = exports ? window
 root.Scene = Scene
