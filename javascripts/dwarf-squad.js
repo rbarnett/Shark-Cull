@@ -448,6 +448,7 @@
       this.on_update = __bind(this.on_update, this);
       this.notify = __bind(this.notify, this);
       this.say = __bind(this.say, this);
+      this.set_animations = __bind(this.set_animations, this);
       this.create_sprite = __bind(this.create_sprite, this);
       Dwarf.__super__.constructor.call(this, game, level, i);
       this.num = i;
@@ -460,6 +461,16 @@
     Dwarf.prototype.create_sprite = function() {
       Dwarf.__super__.create_sprite.apply(this, arguments);
       return this.sprite = this.game.add.sprite(0, 0, 'boat');
+    };
+
+    Dwarf.prototype.set_animations = function() {
+      this.anim_fps_x = 8;
+      this.anim_fps_y = 8;
+      this.sprite.animations.frame = 1;
+      this.sprite.animations.add("down", [0, 1], this.anim_fps_y, true);
+      this.sprite.animations.add("left", [4, 5], this.anim_fps_x, true);
+      this.sprite.animations.add("right", [8, 9], this.anim_fps_x, true);
+      return this.sprite.animations.add("up", [12, 13], this.anim_fps_y, true);
     };
 
     Dwarf.prototype.say = function(message, callback) {
@@ -1409,6 +1420,101 @@
 
 }).call(this);
 (function() {
+  var Emperor, root,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Emperor = (function(_super) {
+    __extends(Emperor, _super);
+
+    function Emperor(game, level) {
+      this.on_update = __bind(this.on_update, this);
+      this.target_sharks = __bind(this.target_sharks, this);
+      this.move_to_position = __bind(this.move_to_position, this);
+      this.create_sprite = __bind(this.create_sprite, this);
+      this.set_physics = __bind(this.set_physics, this);
+      Emperor.__super__.constructor.call(this, game);
+      this.level = level;
+    }
+
+    Emperor.prototype.set_physics = function() {
+      Emperor.__super__.set_physics.apply(this, arguments);
+      this.sprite.body.width = 46;
+      this.sprite.body.height = 100;
+      this.sprite.body.offset.x = 5;
+      this.sprite.body.offset.y = 6;
+      this.sprite.body.maxVelocity.x = 0.5;
+      this.sprite.body.maxVelocity.y = 0.5;
+      this.sprite.body.collideWorldBounds = false;
+      return this.sprite.body.friction = 100.0;
+    };
+
+    Emperor.prototype.create_sprite = function() {
+      this.sprite = this.game.add.sprite(0, 0, 'emperor');
+      return this.crosshair = this.game.add.sprite(100, 100, 'crosshair');
+    };
+
+    Emperor.prototype.move_to_position = function() {
+      var dx, dy;
+      dx = 0 - this.sprite.x;
+      dy = 410 - this.sprite.y;
+      return this.accelerate(dx * 80, dy * 80);
+    };
+
+    Emperor.prototype.target_sharks = function() {
+      var dist, dx, dy, max_crosshair_move, nearest, nearest_dist, s, _i, _len, _ref;
+      nearest = null;
+      nearest_dist = 9999;
+      _ref = this.level.skeletons;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        s = _ref[_i];
+        dist = Math.abs(s.sprite.x - this.crosshair.x) + Math.abs(s.sprite.y - this.crosshair.y);
+        if (dist < 4.0) {
+          this.level.kill_shark(s);
+          nearest = null;
+          break;
+        }
+        if (dist < nearest_dist) {
+          nearest_dist = dist;
+          nearest = s;
+        }
+      }
+      dx = 0.0;
+      dy = 0.0;
+      if (nearest) {
+        dx = nearest.sprite.x - this.crosshair.x;
+        dy = nearest.sprite.y - this.crosshair.y;
+      } else {
+        dx = 70.0 - this.crosshair.x;
+        dy = 440.0 - this.crosshair.y;
+      }
+      max_crosshair_move = 20.0;
+      dx = Math.min(dx, max_crosshair_move);
+      dx = Math.max(dx, -max_crosshair_move);
+      dy = Math.min(dy, max_crosshair_move);
+      dy = Math.max(dy, -max_crosshair_move);
+      this.crosshair.x += (this.game.time.elapsed / 1000.0) * dx * 3;
+      return this.crosshair.y += (this.game.time.elapsed / 1000.0) * dy * 3;
+    };
+
+    Emperor.prototype.on_update = function() {
+      this.collide(this.level.walkers);
+      this.collide(this.level.boulders);
+      this.move_to_position();
+      return this.target_sharks();
+    };
+
+    return Emperor;
+
+  })(Actor);
+
+  root = typeof exports !== "undefined" && exports !== null ? exports : window;
+
+  root.Emperor = Emperor;
+
+}).call(this);
+(function() {
   var Level, root, _ref,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
@@ -1419,6 +1525,7 @@
 
     function Level() {
       this.on_dry_land = __bind(this.on_dry_land, this);
+      this.kill_shark = __bind(this.kill_shark, this);
       this.walkers_collided = __bind(this.walkers_collided, this);
       this.update = __bind(this.update, this);
       this.render = __bind(this.render, this);
@@ -1441,7 +1548,7 @@
     };
 
     Level.prototype.next = function() {
-      var background, controller, i, index, layer, level_group, map, o, player, random_sheep, roof, s, scenery, spawn, tile, trigger, x, y, _base, _i, _j, _k, _l, _len, _len1, _len2, _m, _name, _ref1, _ref2, _ref3, _ref4, _ref5;
+      var background, controller, e, i, index, layer, level_group, map, o, player, random_sheep, roof, s, scenery, spawn, tile, trigger, x, y, _base, _i, _j, _k, _l, _len, _len1, _len2, _m, _name, _ref1, _ref2, _ref3, _ref4, _ref5;
       this.started = false;
       if (!this.faders) {
         this.game.world.removeAll();
@@ -1569,6 +1676,11 @@
         this.sheep.push(s);
         random_sheep -= 1;
       }
+      e = new Emperor(this.game, this);
+      e.sprite.x = 0;
+      e.sprite.y = 600;
+      this.objects.push(e);
+      e.add_to_group(this.entities);
       _ref5 = this.triggers;
       for (_m = 0, _len2 = _ref5.length; _m < _len2; _m++) {
         trigger = _ref5[_m];
@@ -1662,6 +1774,21 @@
     };
 
     Level.prototype.walkers_collided = function(p1, p2) {};
+
+    Level.prototype.kill_shark = function(shark) {
+      var blood, index;
+      index = this.skeletons.indexOf(shark);
+      if (index > -1) {
+        this.skeletons.splice(index, 1);
+      }
+      index = this.objects.indexOf(shark);
+      if (index > -1) {
+        this.objects.splice(index, 1);
+      }
+      blood = new Phaser.Sprite(this.game, shark.sprite.x, shark.sprite.y, 'blood');
+      this.floor_group.add(blood);
+      return shark.destroy();
+    };
 
     Level.prototype.on_dry_land = function(posx, posy) {
       if (posy > 420) {
@@ -1820,7 +1947,10 @@
       this.game.load.spritesheet('sharksprite', 'assets/shark.png', 32, 32);
       this.game.load.spritesheet('manswim', 'assets/manswim.png', 32, 32);
       this.game.load.spritesheet('world', 'assets/world.png', 32, 32);
+      this.game.load.spritesheet('emperor', 'assets/emperor.png', 64, 96);
+      this.game.load.image('crosshair', 'assets/crosshair.png');
       this.game.load.image('boulder', 'assets/boulder.png');
+      this.game.load.image('blood', 'assets/blood.png');
       this.game.load.tilemap('beach', 'maps/beach.json', null, Phaser.Tilemap.TILED_JSON);
       this.game.load.audio('themetune', 'songs/music.mp3');
       this.game.load.audio('pain', 'sounds/pain.wav');
