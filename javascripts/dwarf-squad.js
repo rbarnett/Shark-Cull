@@ -1553,7 +1553,7 @@
       this.pad = new Pad(this.game);
       this.sharks_to_kill = [];
       this.shark_spawn_time = 0.0;
-      this.emperor_time = 40000;
+      this.emperor_time = 50000;
       this.spawned_emperor = false;
       this.dude_spawn_time = 0.0;
       return this.next();
@@ -1679,7 +1679,7 @@
       }
       random_sheep = 30;
       while (random_sheep > 0) {
-        this.spawn_dude();
+        this.spawn_dude(true);
         random_sheep -= 1;
       }
       _ref5 = this.triggers;
@@ -1743,12 +1743,17 @@
       }
     };
 
-    Level.prototype.spawn_dude = function() {
+    Level.prototype.spawn_dude = function(on_land) {
       var s;
       console.log('spawned dude');
       s = new Sheep(this.game, this);
-      s.sprite.x = 20 + (Math.random() * (this.game.width - 40));
-      s.sprite.y = 20 + (Math.random() * (this.game.height - 40));
+      if (on_land) {
+        s.sprite.x = 50 + (Math.random() * (this.game.width - 50));
+        s.sprite.y = 420 + (Math.random() * (this.game.height - 420));
+      } else {
+        s.sprite.x = 20 + (Math.random() * (this.game.width - 40));
+        s.sprite.y = 20 + (Math.random() * (this.game.height - 40));
+      }
       this.objects.push(s);
       s.add_to_group(this.entities);
       this.walkers.push(s);
@@ -1799,11 +1804,11 @@
         }
         return _results;
       }).call(this);
-      if (alive_dudes.length < 20) {
-        return this.spawn_dude();
+      if (alive_dudes.length < 25) {
+        return this.spawn_dude(true);
       } else if (this.dude_spawn_time < 0) {
-        if (Math.random() < 0.3) {
-          this.spawn_dude();
+        if (Math.random() < 0.4) {
+          this.spawn_dude(true);
         }
         this.dude_spawn_time = 6000.0;
         if ((this.sheep.length - alive_dudes.length) > 60) {
