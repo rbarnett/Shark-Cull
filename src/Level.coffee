@@ -21,7 +21,7 @@ class Level extends Scene
     @sharks_to_kill = []
     @shark_spawn_time = 0.0
 
-    @emperor_time = 40000
+    @emperor_time = 50000
     @spawned_emperor = false
 
     @dude_spawn_time = 0.0
@@ -137,7 +137,7 @@ class Level extends Scene
 
     random_sheep = 30
     while random_sheep > 0
-      @spawn_dude()
+      @spawn_dude(true)
       random_sheep -= 1
 
     for trigger in @triggers
@@ -189,11 +189,16 @@ class Level extends Scene
         @spawn_shark()
       @shark_spawn_time = 8000.0
 
-  spawn_dude:=>
+  spawn_dude:(on_land)=>
     console.log('spawned dude')
     s = new Sheep(@game, this)
-    s.sprite.x = 20 + (Math.random() * (@game.width - 40))
-    s.sprite.y = 20 + (Math.random() * (@game.height - 40))
+
+    if (on_land)
+      s.sprite.x = 50 + (Math.random() * (@game.width - 50))
+      s.sprite.y = 420 + (Math.random() * (@game.height - 420))
+    else
+      s.sprite.x = 20 + (Math.random() * (@game.width - 40))
+      s.sprite.y = 20 + (Math.random() * (@game.height - 40))
 
     @objects.push(s)
     s.add_to_group(@entities)
@@ -229,11 +234,11 @@ class Level extends Scene
     
     alive_dudes = (dude for dude in @sheep when dude.alive)
     
-    if alive_dudes.length < 20
-      @spawn_dude()
+    if alive_dudes.length < 25
+      @spawn_dude(true)
     else if @dude_spawn_time < 0
-      if Math.random() < 0.3
-        @spawn_dude()
+      if Math.random() < 0.4
+        @spawn_dude(true)
       @dude_spawn_time = 6000.0
 
       if (@sheep.length - alive_dudes.length) > 60
