@@ -18,6 +18,14 @@ class Level extends Scene
     ]
     @pad = new Pad(@game)
 
+    @sharks_to_kill = []
+    @shark_spawn_time = 0.0
+
+    @emperor_time = 40000
+    @spawned_emperor = false
+
+    @dude_spawn_time = 0.0
+
     @next()
 
   next:=>
@@ -129,22 +137,8 @@ class Level extends Scene
 
     random_sheep = 30
     while random_sheep > 0
-      s = new Sheep(@game, this)
-      s.sprite.x = 20 + (Math.random() * (@game.width - 40))
-      s.sprite.y = 20 + (Math.random() * (@game.height - 40))
-
-      @objects.push(s)
-      s.add_to_group(@entities)
-      @walkers.push(s)
-      @sheep.push(s)
-
+      @spawn_dude()
       random_sheep -= 1
-
-    e = new Emperor(@game, this)
-    e.sprite.x = 0
-    e.sprite.y = 600 #410
-    @objects.push(e)
-    e.add_to_group(@entities)
 
     for trigger in @triggers
       @signals[trigger.properties.event].addOnce(trigger.handle)
@@ -174,11 +168,102 @@ class Level extends Scene
     #@game.debug.renderSpriteBody(o.sprite) for o in @objects
     #@game.debug.renderSpriteBody(p.sprite) for p in @players
 
+  spawn_shark:=>
+    console.log('spawned shark')
+    s = new Skeleton(@game, this)
+    s.sprite.x = Math.random() * 850.0
+    s.sprite.y = Math.random() * 300.0
+
+    @objects.push(s)
+    s.add_to_group(@entities)
+    @walkers.push(s)
+    @skeletons.push(s)
+
+  spawn_sharks:=>
+    @shark_spawn_time -= @game.time.elapsed
+
+    if @skeletons.length == 0
+      @spawn_shark()
+    else if @shark_spawn_time < 0
+      if Math.random() < 0.3
+        @spawn_shark()
+      @shark_spawn_time = 8000.0
+
+  spawn_dude:=>
+    console.log('spawned dude')
+    s = new Sheep(@game, this)
+    s.sprite.x = 20 + (Math.random() * (@game.width - 40))
+    s.sprite.y = 20 + (Math.random() * (@game.height - 40))
+
+    @objects.push(s)
+    s.add_to_group(@entities)
+    @walkers.push(s)
+    @sheep.push(s)
+
+
+  remove_dude:=>
+    the_dude = null
+    for dude in @sheep
+      if !dude.alive
+        the_dude = dude
+        break
+    
+    if the_dude
+      console.log('removed dude')
+      index = @sheep.indexOf(the_dude)
+      if (index > -1) 
+        @sheep.splice(index, 1)
+
+      index = @objects.indexOf(the_dude)
+      if (index > -1) 
+        @objects.splice(index, 1)
+
+      index = @walkers.indexOf(the_dude)
+      if (index > -1) 
+        @walkers.splice(index, 1)
+
+      the_dude.destroy()
+  
+  spawn_dudes:=>
+    @dude_spawn_time -= @game.time.elapsed
+    
+    alive_dudes = (dude for dude in @sheep when dude.alive)
+    
+    if alive_dudes.length < 20
+      @spawn_dude()
+    else if @dude_spawn_time < 0
+      if Math.random() < 0.3
+        @spawn_dude()
+      @dude_spawn_time = 6000.0
+
+      if (@sheep.length - alive_dudes.length) > 60
+        @remove_dude()
+
+  spawn_emperor:=>
+    if !@spawned_emperor
+      #console.log(@emperor_time)
+      @emperor_time -= @game.time.elapsed
+      if @emperor_time < 0
+        e = new Emperor(@game, this)
+        e.sprite.x = 0
+        e.sprite.y = 600 #410
+        e.crosshair.x = e.sprite.x
+        e.crosshair.y = e.sprite.y
+        @objects.push(e)
+        e.add_to_group(@entities)
+
+        @spawned_emperor = true
+
+
   update:=>
     return unless @started
     @pad.update()
     player.update() for player in @players
     object.update() for object in @objects
+
+    # kill stuff
+    while @sharks_to_kill.length > 0
+      @actually_kill_shark(@sharks_to_kill.pop())
 
     # players bonking into each other
     alive_walkers = (walker for walker in @walkers when !walker.ignore)
@@ -189,6 +274,11 @@ class Level extends Scene
 
     controller.update() for controller in @controllers
     @entities.sort('y', Phaser.Group.SORT_ASCENDING)
+
+    @spawn_emperor()
+    if @spawned_emperor
+      @spawn_sharks()
+    @spawn_dudes()
 
   walkers_collided:(p1, p2) =>
     return
@@ -219,6 +309,12 @@ class Level extends Scene
     #             @pad.enable()
 
   kill_shark:(shark) =>
+    # have to actually delay killing the shark until the end of the update loop, 
+    # as can't remove it from the object list while it's being iterated over
+    @sharks_to_kill.push(shark)
+
+  actually_kill_shark:(shark) =>
+    #console.log('kill shark' + shark)
     index = @skeletons.indexOf(shark)
     if (index > -1) 
       @skeletons.splice(index, 1)
@@ -227,8 +323,11 @@ class Level extends Scene
     if (index > -1) 
       @objects.splice(index, 1)
 
+    index = @walkers.indexOf(shark)
+    if (index > -1) 
+      @walkers.splice(index, 1)
+
     blood = new Phaser.Sprite(@game, shark.sprite.x, shark.sprite.y, 'blood')
-    #@game.add.sprite(shark.sprite.x, shark.sprite.y, 'blood')
     @floor_group.add(blood)
     shark.destroy()
 

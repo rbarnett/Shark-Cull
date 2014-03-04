@@ -19,7 +19,7 @@ class Emperor extends Actor
 
   create_sprite:=>
     @sprite = @game.add.sprite(0, 0, 'emperor')
-    @crosshair = @game.add.sprite(100, 100, 'crosshair')
+    @crosshair = @game.add.sprite(0, 0, 'crosshair')
 
   move_to_position:=>
     dx = 0 - @sprite.x
