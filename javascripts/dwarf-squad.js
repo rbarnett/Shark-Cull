@@ -1452,7 +1452,7 @@
 
     Emperor.prototype.create_sprite = function() {
       this.sprite = this.game.add.sprite(0, 0, 'emperor');
-      return this.crosshair = this.game.add.sprite(100, 100, 'crosshair');
+      return this.crosshair = this.game.add.sprite(0, 0, 'crosshair');
     };
 
     Emperor.prototype.move_to_position = function() {
@@ -1525,9 +1525,16 @@
 
     function Level() {
       this.on_dry_land = __bind(this.on_dry_land, this);
+      this.actually_kill_shark = __bind(this.actually_kill_shark, this);
       this.kill_shark = __bind(this.kill_shark, this);
       this.walkers_collided = __bind(this.walkers_collided, this);
       this.update = __bind(this.update, this);
+      this.spawn_emperor = __bind(this.spawn_emperor, this);
+      this.spawn_dudes = __bind(this.spawn_dudes, this);
+      this.remove_dude = __bind(this.remove_dude, this);
+      this.spawn_dude = __bind(this.spawn_dude, this);
+      this.spawn_sharks = __bind(this.spawn_sharks, this);
+      this.spawn_shark = __bind(this.spawn_shark, this);
       this.render = __bind(this.render, this);
       this.fadeout = __bind(this.fadeout, this);
       this.endfade = __bind(this.endfade, this);
@@ -1544,11 +1551,16 @@
       this.game.stage.backgroundColor = '#000';
       this.levels = ['beach'];
       this.pad = new Pad(this.game);
+      this.sharks_to_kill = [];
+      this.shark_spawn_time = 0.0;
+      this.emperor_time = 40000;
+      this.spawned_emperor = false;
+      this.dude_spawn_time = 0.0;
       return this.next();
     };
 
     Level.prototype.next = function() {
-      var background, controller, e, i, index, layer, level_group, map, o, player, random_sheep, roof, s, scenery, spawn, tile, trigger, x, y, _base, _i, _j, _k, _l, _len, _len1, _len2, _m, _name, _ref1, _ref2, _ref3, _ref4, _ref5;
+      var background, controller, i, index, layer, level_group, map, o, player, random_sheep, roof, scenery, spawn, tile, trigger, x, y, _base, _i, _j, _k, _l, _len, _len1, _len2, _m, _name, _ref1, _ref2, _ref3, _ref4, _ref5;
       this.started = false;
       if (!this.faders) {
         this.game.world.removeAll();
@@ -1667,20 +1679,9 @@
       }
       random_sheep = 30;
       while (random_sheep > 0) {
-        s = new Sheep(this.game, this);
-        s.sprite.x = 20 + (Math.random() * (this.game.width - 40));
-        s.sprite.y = 20 + (Math.random() * (this.game.height - 40));
-        this.objects.push(s);
-        s.add_to_group(this.entities);
-        this.walkers.push(s);
-        this.sheep.push(s);
+        this.spawn_dude();
         random_sheep -= 1;
       }
-      e = new Emperor(this.game, this);
-      e.sprite.x = 0;
-      e.sprite.y = 600;
-      this.objects.push(e);
-      e.add_to_group(this.entities);
       _ref5 = this.triggers;
       for (_m = 0, _len2 = _ref5.length; _m < _len2; _m++) {
         trigger = _ref5[_m];
@@ -1718,6 +1719,116 @@
 
     Level.prototype.render = function() {};
 
+    Level.prototype.spawn_shark = function() {
+      var s;
+      console.log('spawned shark');
+      s = new Skeleton(this.game, this);
+      s.sprite.x = Math.random() * 850.0;
+      s.sprite.y = Math.random() * 300.0;
+      this.objects.push(s);
+      s.add_to_group(this.entities);
+      this.walkers.push(s);
+      return this.skeletons.push(s);
+    };
+
+    Level.prototype.spawn_sharks = function() {
+      this.shark_spawn_time -= this.game.time.elapsed;
+      if (this.skeletons.length === 0) {
+        return this.spawn_shark();
+      } else if (this.shark_spawn_time < 0) {
+        if (Math.random() < 0.3) {
+          this.spawn_shark();
+        }
+        return this.shark_spawn_time = 8000.0;
+      }
+    };
+
+    Level.prototype.spawn_dude = function() {
+      var s;
+      console.log('spawned dude');
+      s = new Sheep(this.game, this);
+      s.sprite.x = 20 + (Math.random() * (this.game.width - 40));
+      s.sprite.y = 20 + (Math.random() * (this.game.height - 40));
+      this.objects.push(s);
+      s.add_to_group(this.entities);
+      this.walkers.push(s);
+      return this.sheep.push(s);
+    };
+
+    Level.prototype.remove_dude = function() {
+      var dude, index, the_dude, _i, _len, _ref1;
+      the_dude = null;
+      _ref1 = this.sheep;
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        dude = _ref1[_i];
+        if (!dude.alive) {
+          the_dude = dude;
+          break;
+        }
+      }
+      if (the_dude) {
+        console.log('removed dude');
+        index = this.sheep.indexOf(the_dude);
+        if (index > -1) {
+          this.sheep.splice(index, 1);
+        }
+        index = this.objects.indexOf(the_dude);
+        if (index > -1) {
+          this.objects.splice(index, 1);
+        }
+        index = this.walkers.indexOf(the_dude);
+        if (index > -1) {
+          this.walkers.splice(index, 1);
+        }
+        return the_dude.destroy();
+      }
+    };
+
+    Level.prototype.spawn_dudes = function() {
+      var alive_dudes, dude;
+      this.dude_spawn_time -= this.game.time.elapsed;
+      alive_dudes = (function() {
+        var _i, _len, _ref1, _results;
+        _ref1 = this.sheep;
+        _results = [];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          dude = _ref1[_i];
+          if (dude.alive) {
+            _results.push(dude);
+          }
+        }
+        return _results;
+      }).call(this);
+      if (alive_dudes.length < 20) {
+        return this.spawn_dude();
+      } else if (this.dude_spawn_time < 0) {
+        if (Math.random() < 0.3) {
+          this.spawn_dude();
+        }
+        this.dude_spawn_time = 6000.0;
+        if ((this.sheep.length - alive_dudes.length) > 60) {
+          return this.remove_dude();
+        }
+      }
+    };
+
+    Level.prototype.spawn_emperor = function() {
+      var e;
+      if (!this.spawned_emperor) {
+        this.emperor_time -= this.game.time.elapsed;
+        if (this.emperor_time < 0) {
+          e = new Emperor(this.game, this);
+          e.sprite.x = 0;
+          e.sprite.y = 600;
+          e.crosshair.x = e.sprite.x;
+          e.crosshair.y = e.sprite.y;
+          this.objects.push(e);
+          e.add_to_group(this.entities);
+          return this.spawned_emperor = true;
+        }
+      }
+    };
+
     Level.prototype.update = function() {
       var alive_walkers, controller, non_sheep_walkers, object, player, walker, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _m, _ref1, _ref2, _ref3;
       if (!this.started) {
@@ -1733,6 +1844,9 @@
       for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
         object = _ref2[_j];
         object.update();
+      }
+      while (this.sharks_to_kill.length > 0) {
+        this.actually_kill_shark(this.sharks_to_kill.pop());
       }
       alive_walkers = (function() {
         var _k, _len2, _ref3, _results;
@@ -1770,12 +1884,21 @@
         controller = _ref3[_m];
         controller.update();
       }
-      return this.entities.sort('y', Phaser.Group.SORT_ASCENDING);
+      this.entities.sort('y', Phaser.Group.SORT_ASCENDING);
+      this.spawn_emperor();
+      if (this.spawned_emperor) {
+        this.spawn_sharks();
+      }
+      return this.spawn_dudes();
     };
 
     Level.prototype.walkers_collided = function(p1, p2) {};
 
     Level.prototype.kill_shark = function(shark) {
+      return this.sharks_to_kill.push(shark);
+    };
+
+    Level.prototype.actually_kill_shark = function(shark) {
       var blood, index;
       index = this.skeletons.indexOf(shark);
       if (index > -1) {
@@ -1784,6 +1907,10 @@
       index = this.objects.indexOf(shark);
       if (index > -1) {
         this.objects.splice(index, 1);
+      }
+      index = this.walkers.indexOf(shark);
+      if (index > -1) {
+        this.walkers.splice(index, 1);
       }
       blood = new Phaser.Sprite(this.game, shark.sprite.x, shark.sprite.y, 'blood');
       this.floor_group.add(blood);
