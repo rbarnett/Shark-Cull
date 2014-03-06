@@ -28,7 +28,7 @@ class Main extends Phaser.State
     @game.load.spritesheet('sharksprite', 'assets/shark.png', 32, 32)
     @game.load.spritesheet('manswim', 'assets/manswim.png', 32, 32)
     @game.load.spritesheet('world', 'assets/world.png', 32, 32)
-    @game.load.spritesheet('emperor', 'assets/emperor.png', 64, 96)
+    @game.load.spritesheet('emperor', 'assets/emperor.png', 96, 128)
     @game.load.image('crosshair', 'assets/crosshair.png')
     @game.load.image('boulder', 'assets/boulder.png')
     @game.load.image('blood', 'assets/blood.png')
