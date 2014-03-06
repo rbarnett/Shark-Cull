@@ -1440,10 +1440,10 @@
 
     Emperor.prototype.set_physics = function() {
       Emperor.__super__.set_physics.apply(this, arguments);
-      this.sprite.body.width = 46;
-      this.sprite.body.height = 100;
+      this.sprite.body.width = 80;
+      this.sprite.body.height = 105;
       this.sprite.body.offset.x = 5;
-      this.sprite.body.offset.y = 6;
+      this.sprite.body.offset.y = 15;
       this.sprite.body.maxVelocity.x = 0.5;
       this.sprite.body.maxVelocity.y = 0.5;
       this.sprite.body.collideWorldBounds = false;
@@ -1452,13 +1452,16 @@
 
     Emperor.prototype.create_sprite = function() {
       this.sprite = this.game.add.sprite(0, 0, 'emperor');
+      this.sprite.animations.add("centre", [0], this.anim_fps_y, true);
+      this.sprite.animations.add("left", [1], this.anim_fps_x, true);
+      this.sprite.animations.add("right", [2], this.anim_fps_x, true);
       return this.crosshair = this.game.add.sprite(0, 0, 'crosshair');
     };
 
     Emperor.prototype.move_to_position = function() {
       var dx, dy;
       dx = 0 - this.sprite.x;
-      dy = 410 - this.sprite.y;
+      dy = 379 - this.sprite.y;
       return this.accelerate(dx * 80, dy * 80);
     };
 
@@ -1494,6 +1497,13 @@
       dx = Math.max(dx, -max_crosshair_move);
       dy = Math.min(dy, max_crosshair_move);
       dy = Math.max(dy, -max_crosshair_move);
+      if (dx > 5.0) {
+        this.sprite.animations.play("right");
+      } else if (dx < -5.0) {
+        this.sprite.animations.play("left");
+      } else {
+        this.sprite.animations.play("centre");
+      }
       this.crosshair.x += (this.game.time.elapsed / 1000.0) * dx * 3;
       return this.crosshair.y += (this.game.time.elapsed / 1000.0) * dy * 3;
     };
@@ -2079,7 +2089,7 @@
       this.game.load.spritesheet('sharksprite', 'assets/shark.png', 32, 32);
       this.game.load.spritesheet('manswim', 'assets/manswim.png', 32, 32);
       this.game.load.spritesheet('world', 'assets/world.png', 32, 32);
-      this.game.load.spritesheet('emperor', 'assets/emperor.png', 64, 96);
+      this.game.load.spritesheet('emperor', 'assets/emperor.png', 96, 128);
       this.game.load.image('crosshair', 'assets/crosshair.png');
       this.game.load.image('boulder', 'assets/boulder.png');
       this.game.load.image('blood', 'assets/blood.png');
